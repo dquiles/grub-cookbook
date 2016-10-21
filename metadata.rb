@@ -8,5 +8,3 @@ version '0.1.2'
 supports 'centos', '>= 6.4'
 supports 'redhat', '>= 6.4'
 supports 'ubuntu', '>= 12.04'
-
-depends 'poise'
