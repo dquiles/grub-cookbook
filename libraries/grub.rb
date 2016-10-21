@@ -11,16 +11,12 @@ require 'chef/provider'
 
 module Grub
   class Resource < Chef::Resource
-    include Poise
+    include Poise(fused: true)
     provides(:grub)
+    actions(:create)
 
     attribute(:path, default: lazy { node['grub']['config']['path'] })
     attribute(:source, template: true, default_source: 'grub.conf.erb')
-  end
-
-  class Provider < Chef::Provider
-    provides(:grub)
-    include Poise
 
     action(:create) do
       notifying_block do

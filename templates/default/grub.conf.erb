@@ -1,0 +1,5 @@
+# Dynamically generated file dropped off by Chef!
+
+<% node['grub']['config']['settings'].each do |k,v| %>
+<%= ['GRUB', k.upcase].join('_') %>=<%= v.strip.include?(' ') ? "\"#{v}\"" : v %>
+<% end %>
