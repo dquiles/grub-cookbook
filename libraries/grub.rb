@@ -6,42 +6,28 @@
 #
 
 require 'poise'
+require 'chef/resource'
+require 'chef/provider'
 
-module GrubCookbook
-  module Resource
-    # Resource for managing the Grub Configuration file.
-    class Grub < Chef::Resource
-      include Poise(fused: true)
-      provides(:grub)
+module Grub
+  class Resource < Chef::Resource
+    include Poise
+    provides(:grub)
 
-      attribute(:path, kind_of: String, name_attribute: true)
-      attribute(:settings, option_collector: true, default: {})
+    attribute(:path, default: lazy { node['grub']['config']['path'] })
+    attribute(:source, template: true, default_source: 'grub.conf.erb')
+  end
 
-      def to_s
-        s = settings.merge({}) do |_k, _o, n|
-          if n.is_a?(Array)
-            n.flatten.map(&:to_s).join(',')
-          else
-            n
-          end
-        end
-        s.map { |k,v|
-            if v.match(/[\W\s]+/) then
-              g = "=\"#{v}\""
-            else
-              g = "=#{v}"
-            end
-            ["GRUB", k.upcase].join("_") << g}.join("\n")
-      end
+  class Provider < Chef::Provider
+    provides(:grub)
+    include Poise
 
-      action(:create) do
-        notifying_block do
-          # Write out grub config file
-          unless new_resource.to_s.empty?
-            file new_resource.path do
-              content new_resource.to_s
-            end
-          end
+    action(:create) do
+      notifying_block do
+        file new_resource.path do
+          content new_resource.source_content
+          owner 'root'
+          group 'root'
         end
       end
     end
